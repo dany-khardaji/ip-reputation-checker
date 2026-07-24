@@ -17,7 +17,10 @@ def main():
 
     print(response.status_code)
     print(response.text)
-
+    
+    response_dict = response.json()
+    print(response_dict["data"]["abuseConfidenceScore"])
+    
 
 if __name__ == "__main__":
     main()
