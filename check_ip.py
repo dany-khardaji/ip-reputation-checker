@@ -6,14 +6,7 @@ import argparse
                         
 load_dotenv()
 
-
-def main():
-    
-    # Set up parser and created argument
-    parser = argparse.ArgumentParser()  
-    parser.add_argument("ip", help="The IP address to check")
-    args = parser.parse_args()
-
+def check_ip(ip):
 
     # Key loaded from .env, never hardcoded
     api_key = os.getenv("ABUSEIPDB_API_KEY")
@@ -23,32 +16,33 @@ def main():
     "Accept": "application/json"}
 
     params = {
-    "ipAddress": args.ip,
+    "ipAddress": ip,
     "maxAgeInDays": 90}
     
 
-    # get request and error handling
+    # Get request and error handling
     try:
         response = requests.get("https://api.abuseipdb.com/api/v2/check", headers=headers, params=params)   # API get request
 
     except requests.exceptions.RequestException:                                                            
-        print("[Network Error] - Failed to resolve host 'api.abuseipdb.com'. Check your internet connection and try again.")
-        return
+        return {"error": "[Network Error] - could not reach 'api.abuseipdb.com'"}
 
     if response.status_code != 200:  
         error_data = response.json()
         detail = error_data["errors"][0]["detail"]
-        print (f"[Error] - Request failed, status code {response.status_code}: {detail}")
-        return
+        return {"error": "[Error] - request failed",
+                "status_code": response.status_code,
+                "detail": detail
+        }
 
 
-    # Parse the JSON to access abuseIPDB data and print results
-    response_dict = response.json()
+    # Parse the JSON to access and return abuseIPDB data
+    results_dict = response.json()
 
-    abuse_confidence_score = response_dict["data"]["abuseConfidenceScore"]
-    country = response_dict["data"]["countryCode"]
-    isp = response_dict["data"]["isp"]
-    total_reports = response_dict["data"]["totalReports"]
+    abuse_confidence_score = results_dict["data"]["abuseConfidenceScore"]
+    country = results_dict["data"]["countryCode"]
+    isp = results_dict["data"]["isp"]
+    total_reports = results_dict["data"]["totalReports"]
 
     if abuse_confidence_score >= 75:
         verdict = "BLOCK"
@@ -57,7 +51,29 @@ def main():
     else:
         verdict = "OK"
 
-    print(f"------- ip: {params['ipAddress']} ------- \nVerdict: {verdict}, \nScore: {abuse_confidence_score}, \nCountry: {country}, \nISP: {isp}, \nReports: {total_reports}")
+    return {
+        "ip": ip,
+        "verdict": verdict,
+        "score": abuse_confidence_score,
+        "country": country,
+        "isp": isp,
+        "total_reports": total_reports
+    }
+
+
+def main():
+    
+    # Set up parser and created argument
+    parser = argparse.ArgumentParser()  
+    parser.add_argument("ip", help="The IP address to check")
+    args = parser.parse_args()
+
+    result = check_ip(args.ip)
+
+    if "error" in result:
+        print(result["error"])
+    else:
+        print(f"------- ip: {result['ip']} ------- \nVerdict: {result['verdict']}, \nScore: {result['score']}, \nCountry: {result['country']}, \nISP: {result['isp']}, \nReports: {result['total_reports']}")
 
 
 if __name__ == "__main__":
