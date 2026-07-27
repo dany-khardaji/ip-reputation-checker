@@ -1,12 +1,17 @@
 from dotenv import load_dotenv
 import os
 import requests
+import argparse
                         
                         
 load_dotenv()
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("ip", help="The IP address to check")
+    args = parser.parse_args()
+
     api_key = os.getenv("ABUSEIPDB_API_KEY")
 
     headers = {
@@ -14,7 +19,7 @@ def main():
     "Accept": "application/json"
 }
     params = {
-    "ipAddress": "118.25.6.39", 
+    "ipAddress": args.ip, 
     "maxAgeInDays": 90
 }
     
