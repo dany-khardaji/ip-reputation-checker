@@ -10,6 +10,7 @@ def check_ip(ip):
 
     # Key loaded from .env, never hardcoded
     api_key = os.getenv("ABUSEIPDB_API_KEY")
+
     # Auth headers and the IP being checked
     headers = {
     "Key": api_key, 
@@ -51,6 +52,7 @@ def check_ip(ip):
     else:
         verdict = "OK"
 
+    # This is the data in dictionary form that the API gives when called
     return {
         "ip": ip,
         "verdict": verdict,
@@ -63,11 +65,10 @@ def check_ip(ip):
 
 def main():
     
-    # Set up parser and created argument
+    # Set up parser for CLI and created argument
     parser = argparse.ArgumentParser()  
     parser.add_argument("ip", help="The IP address to check")
     args = parser.parse_args()
-
     result = check_ip(args.ip)
 
     if "error" in result:
