@@ -4,3 +4,4 @@ __pycache__/
 .env
 .DS_Store
 CLAUDE.md
+checks.db
