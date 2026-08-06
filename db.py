@@ -50,7 +50,21 @@ def save_check(result):
     conn.close()
 
 
+# Returns every past check for one IP, newest first. Read-only, changes nothing.
+def get_history(ip):
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+
+    cursor.execute(""" SELECT * FROM checks WHERE ip = ? ORDER BY checked_at DESC """, (ip,))
+
+    rows = cursor.fetchall()                # execute() runs the query, fetchall() collects the results
+    
+    conn.close()                            # no commit needed, SELECT doesn't change anything
+
+    return rows                             # list of tuples, one per row, values come back positionally
+
 # Only runs when db.py is executed directly
-if __name__ == "__main__":                  
+if __name__ == "__main__":
     init_db()
     print("Database initialized")
+    print(get_history("8.8.8.8"))
