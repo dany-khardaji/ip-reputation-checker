@@ -50,7 +50,7 @@ def save_check(result):
     conn.close()
 
 
-# Returns every past check for one IP, newest first. Read-only, changes nothing.
+# Returns every past check for one IP, newest first, as a list of dicts.
 def get_history(ip):
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
@@ -61,10 +61,23 @@ def get_history(ip):
     
     conn.close()                            # no commit needed, SELECT doesn't change anything
 
-    return rows                             # list of tuples, one per row, values come back positionally
+    history = []                            # convert raw tuples into labeled dicts so callers don't index by position
+    for row in rows:
+        history.append({
+            "id": row[0],
+            "ip": row[1],
+            "verdict": row[2],
+            "score": row[3],
+            "country": row[4],
+            "isp": row[5],
+            "total_reports": row[6],
+            "checked_at": row[7]
+        })
+    
+    return history
+
 
 # Only runs when db.py is executed directly
 if __name__ == "__main__":
     init_db()
     print("Database initialized")
-    print(get_history("8.8.8.8"))
