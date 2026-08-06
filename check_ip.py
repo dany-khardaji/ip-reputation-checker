@@ -1,12 +1,14 @@
-from dotenv import load_dotenv
-import os
-import requests
-import argparse
+from dotenv import load_dotenv      # Reads the .env file so the API key never touches the code
+import os                           # Used to pull the key out of the environment
+import requests                     # Makes the HTTP call to AbuseIPDB
+import argparse                     # Lets the CLI take an IP from the command line
 
 
-load_dotenv()
+load_dotenv()                       # Runs once at import, loads .env into the environment
 
 
+# Takes an IP string, returns a dict of reputation data (or an error dict).
+# Never prints, so CLI, FastAPI, and anything else can all call it.
 def check_ip(ip):
     # Key loaded from .env, never hardcoded
     api_key = os.getenv("ABUSEIPDB_API_KEY")
@@ -62,6 +64,8 @@ def check_ip(ip):
     }
 
 
+# The CLI interface. Only place in this file that prints.
+# FastAPI ignores this entirely and calls check_ip() directly.
 def main():
     # Set up parser for CLI and created argument
     parser = argparse.ArgumentParser()  
@@ -75,5 +79,6 @@ def main():
         print(f"------- ip: {result['ip']} ------- \nVerdict: {result['verdict']}, \nScore: {result['score']}, \nCountry: {result['country']}, \nISP: {result['isp']}, \nReports: {result['total_reports']}")
 
 
+# Only fires when you run directly. When api.py imports this file, main() never runs.
 if __name__ == "__main__":
     main()
