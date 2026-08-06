@@ -2,12 +2,12 @@ from dotenv import load_dotenv
 import os
 import requests
 import argparse
-     
-                        
+
+
 load_dotenv()
 
-def check_ip(ip):
 
+def check_ip(ip):
     # Key loaded from .env, never hardcoded
     api_key = os.getenv("ABUSEIPDB_API_KEY")
 
@@ -20,7 +20,6 @@ def check_ip(ip):
     "ipAddress": ip,
     "maxAgeInDays": 90}
     
-
     # Get request and error handling
     try:
         response = requests.get("https://api.abuseipdb.com/api/v2/check", headers=headers, params=params)   # API get request
@@ -31,11 +30,11 @@ def check_ip(ip):
     if response.status_code != 200:  
         error_data = response.json()
         detail = error_data["errors"][0]["detail"]
-        return {"error": "[Error] - request failed",
-                "status_code": response.status_code,
-                "detail": detail
-        }
-
+        return {
+            "error": "[Error] - request failed",
+            "status_code": response.status_code,
+            "detail": detail
+        }   
 
     # Parse the JSON to access and return abuseIPDB data
     results_dict = response.json()
@@ -64,7 +63,6 @@ def check_ip(ip):
 
 
 def main():
-    
     # Set up parser for CLI and created argument
     parser = argparse.ArgumentParser()  
     parser.add_argument("ip", help="The IP address to check")
