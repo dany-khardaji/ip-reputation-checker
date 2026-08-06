@@ -19,7 +19,15 @@ def check_endpoint(ip: str):
 
     return result                           # FastAPI turns the dict into JSON for the browser
 
+
+# Returns all past checks for one IP, wrapped so the shape stays consistent
 @app.get("/history/{ip}")
 def history_endpoint(ip: str):
-    return get_history(ip)
+    history = get_history(ip)               # list of dicts from db.py, newest first
+
+    return {
+        "ip": ip,
+        "count": len(history),              # 0 means never checked, not an error
+        "history": history
+    }
 
