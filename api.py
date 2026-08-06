@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException  # HTTPException lets me return real error status codes
 from check_ip import check_ip               # The engine, calls AbuseIPDB and returns a dict
 from db import save_check                   # Storage layer, writes that dict into checks.db
-
+from db import get_history
 
 app = FastAPI()
 
@@ -18,4 +18,8 @@ def check_endpoint(ip: str):
     save_check(result)                      # passes that same dict to db.py, saved as one row
 
     return result                           # FastAPI turns the dict into JSON for the browser
+
+@app.get("/history/{ip}")
+def history_endpoint(ip: str):
+    return get_history(ip)
 
