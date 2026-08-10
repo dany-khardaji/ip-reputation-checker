@@ -25,9 +25,18 @@ def check_endpoint(ip: str):
 def history_endpoint(ip: str):
     history = get_history(ip)               # list of dicts from db.py, newest first
 
+    score_changed = None
+    verdict_changed = None
+
+    if len(history) >= 2:
+        score_changed = history[0]["score"] != history[1]["score"]
+        verdict_changed = history[0]["verdict"] != history[1]["verdict"]
+
     return {
         "ip": ip,
         "count": len(history),              # 0 means never checked, not an error
+        "score_changed": score_changed,
+        "verdict_changed": verdict_changed,
         "history": history
     }
 
