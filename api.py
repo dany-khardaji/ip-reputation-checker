@@ -28,7 +28,7 @@ def history_endpoint(ip: str):
     score_changed = None
     verdict_changed = None
 
-    if len(history) >= 2:
+    if len(history) >= 2:                   # change detection needs 2 records to compare, otherwise flags stay None
         score_changed = history[0]["score"] != history[1]["score"]
         verdict_changed = history[0]["verdict"] != history[1]["verdict"]
 
